@@ -1,1 +1,1 @@
-# Shreyas-weakly-supervised-segmentation
+# weakly-supervised-segmentation
