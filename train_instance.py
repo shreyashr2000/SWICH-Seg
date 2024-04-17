@@ -25,7 +25,7 @@ import torch.optim as optim
 def main():
     # Set device (GPU if available, else CPU)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    # Define hyperparameters
+    #  hyperparameters
     batch_size = 32
     learning_rate = 0.0001
     epochs = 100
@@ -38,8 +38,8 @@ def main():
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     resnet_model = ResNet101()  # Initialize ResNet model
-    criterion = nn.BCELoss()  # Define loss function
- #   optimizer = your_optimizer_function(resnet_model.parameters(), lr=learning_rate)  # Define optimizer
+    criterion = nn.BCELoss()  #  loss function
+ #   optimizer = your_optimizer_function(resnet_model.parameters(), lr=learning_rate)  #  optimizer
 
     optimizer = optim.SGD(resnet_model.parameters(), lr=learning_rate, momentum=0.9)
     best_resnet_model = train_model(resnet_model, train_loader, criterion, optimizer, device, epochs, 'best_resnet_model.pth')
@@ -52,7 +52,7 @@ def main():
     resnet_gru_model = GRUClassifier(resnet_model,hidden_dim, output_dim)  # Pass ResNet model as argument to ResNet-GRU model
     criterion = nn.BCELoss()   #  loss function
     learning_rate=0.001
-    optimizer = optim.SGD(resnet_gru_model.parameters(), lr=learning_rate, momentum=0.9) # Define optimizer
+    optimizer = optim.SGD(resnet_gru_model.parameters(), lr=learning_rate, momentum=0.9) #   optimizer
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     best_resnet_gru_model = train_model(resnet_gru_model, train_loader, criterion, optimizer, device, epochs, 'best_resnet_gru_model.pth')
@@ -61,10 +61,10 @@ def main():
     # 3. Train ResNet-FC model
     resnet_fc_model = ResNetFCModel(resnet_model_from_gru)  # Pass ResNet model as argument to ResNet-FC model
     criterion = nn.BCELoss()  #  loss function
-    optimizer = optim.SGD(resnet_gru_model.parameters(), lr=learning_rate, momentum=0.9)  # Define optimizer
+    optimizer = optim.SGD(resnet_gru_model.parameters(), lr=learning_rate, momentum=0.9)  #   optimizer
     best_resnet_fc_model = train_model(resnet_fc_model, train_loader, criterion, optimizer, device, epochs, 'best_resnet_fc_model.pth')
     # 4. Generate Grad-CAM
-    # Assume you have a function generate_gradcam() that generates Grad-CAM images
+    # generates Grad-CAM images
     gradcam_images = generate_gradcam(best_resnet_fc_model, train_loader)
 
     # 5. Perform KMeans clustering
@@ -72,8 +72,8 @@ def main():
 
     # 6. Train UNet model using cluster labels
     unet_model = UNetModel()  # Initialize UNet model
-    criterion = dice_loss()  # Define loss function
-    optimizer = optim.Adam(list(model.parameters()), lr=learning_rate)  # Define optimizer
+    criterion = dice_loss()  #   loss function
+    optimizer = optim.Adam(list(model.parameters()), lr=learning_rate)  #   optimizer
 
     best_unet_model = train_model(unet_model, train_loader, criterion, optimizer, device, epochs, 'best_unet_model.pth', cluster_labels=cluster_labels)
 
