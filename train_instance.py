@@ -6,6 +6,7 @@ from resnet_fc_model import ResNetFCModel
 from unet_model import UNetModel
 from data_loader_INSTANCE import get_INSTANCE_data_loader
 from lowdata_class_trainer import train_model_lowdata
+from lowdata_seg_trainer import seg_train_model_lowdata
 from gradcam_function import generate_gradcam
 from clustering import perform_kmeans_clustering
 from data_utils import class_lowdata_numpy_dataset
