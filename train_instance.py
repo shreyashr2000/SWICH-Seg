@@ -7,7 +7,7 @@ from unet_model import UNetModel
 from data_loader_INSTANCE import get_INSTANCE_data_loader
 from lowdata_class_trainer import train_model_lowdata
 from gradcam_function import generate_gradcam
-from clustering_function import perform_kmeans_clustering
+from clustering import perform_kmeans_clustering
 from utils import your_loss_function, your_optimizer_function
 from data_utils import class_lowdata_numpy_dataset
 from data_utils import test_lowdata_numpy_dataset
