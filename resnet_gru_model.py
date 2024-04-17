@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import models
-# Define the GRU-based classifier
+# ResNet-GRU-based classifier
 class GRUClassifier(nn.Module):
     def __init__(self, resnet, hidden_dim, output_dim):
         super(GRUClassifier, self).__init__()
