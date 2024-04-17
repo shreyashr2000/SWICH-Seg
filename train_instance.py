@@ -13,6 +13,7 @@ from data_utils import class_lowdata_numpy_dataset
 from data_utils import test_lowdata_numpy_dataset
 from torch.utils.data import DataLoader
 from loss_function import dice_loss
+from generate_pseudolabels import get_pseudolabels
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
@@ -63,7 +64,16 @@ def main():
     best_resnet_fc_model = train_model_lowdata(resnet_fc_model, train_loader, criterion, optimizer, device, epochs, 'best_resnet_fc_model.pth')
     # 4. Generate Grad-CAM
     # generates Grad-CAM images
-    gradcam_images = generate_gradcam(best_resnet_fc_model, train_loader)
+    model.eval()
+    #target_layer_index = 0  # Index of the desired layer within the Sequential model
+    target_layer = model.module[-4]
+    # Access the Sequential model inside DataParallel and then the target layer
+    #target_layer = model.module[target_layer_index]
+
+    #target_layer = model.layer[0]
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+    gradcam_images = get_pseudolabels(best_resnet_fc_model, train_loader)
 
     # 5. Perform KMeans clustering
     cluster_labels = perform_kmeans_clustering(gradcam_images)
