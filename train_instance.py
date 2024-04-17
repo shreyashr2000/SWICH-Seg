@@ -5,12 +5,12 @@ from resnet_gru_model import remove_last_fc_layer
 from resnet_fc_model import ResNetFCModel
 from unet_model import UNetModel
 from data_loader_INSTANCE import get_INSTANCE_data_loader
-from train_function import train_model
+from lowdata_class_trainer import train_model_lowdata
 from gradcam_function import generate_gradcam
 from clustering_function import perform_kmeans_clustering
 from utils import your_loss_function, your_optimizer_function
-from dataloaderclass import class_lowdata_numpy_dataset
-from dataloaderclass import test_lowdata_numpy_dataset
+from data_utils import class_lowdata_numpy_dataset
+from data_utils import test_lowdata_numpy_dataset
 from torch.utils.data import DataLoader
 from loss_function import dice_loss
 import numpy as np
