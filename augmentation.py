@@ -2,7 +2,6 @@ import random
 from scipy.ndimage.interpolation import shift
 from scipy.ndimage.filters import gaussian_filter
 from scipy.ndimage import rotate
-from skimage.util import random_noise
 import torch
 from torchvision import transforms
 from PIL import Image
