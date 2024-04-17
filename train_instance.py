@@ -48,9 +48,8 @@ def main():
 
 # Create an instance of the LSTM-based classifier
     # 2. Train ResNet-GRU model
-    resnet_model=remove_last_fc_layer(resnet_model)   #Remove fc layr from resnet
-    resnet_gru_model = GRUClassifier(resnet_model,hidden_dim, output_dim)  # Pass ResNet model as argument to ResNet-GRU model
-    criterion = nn.BCELoss()   #  loss function
+    best_resnet_model=remove_last_fc_layer(best_resnet_model)   #Remove fc layr from resnet
+    resnet_gru_model = GRUClassifier(best_resnet_model,hidden_dim, output_dim)  # Pass ResNet model as argument to ResNet-GRU model
     learning_rate=0.001
     optimizer = optim.SGD(resnet_gru_model.parameters(), lr=learning_rate, momentum=0.9) #   optimizer
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)
@@ -60,7 +59,6 @@ def main():
     resnet_model_from_gru = best_resnet_gru_model.resnet()
     # 3. Train ResNet-FC model
     resnet_fc_model = ResNetFCModel(resnet_model_from_gru)  # Pass ResNet model as argument to ResNet-FC model
-    criterion = nn.BCELoss()  #  loss function
     optimizer = optim.SGD(resnet_gru_model.parameters(), lr=learning_rate, momentum=0.9)  #   optimizer
     best_resnet_fc_model = train_model_lowdata(resnet_fc_model, train_loader, criterion, optimizer, device, epochs, 'best_resnet_fc_model.pth')
     # 4. Generate Grad-CAM
