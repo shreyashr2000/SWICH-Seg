@@ -83,12 +83,15 @@ def get_pseudolabels(train_loader, val_loader, model, device, target_layer, thre
 
                     # Perform binary dilation
                     binary_mask = binary_dilation(binary_mask, structure=np.ones((4, 4)))
+                    binary_mask_onehot = np.zeros((2, 512, 512))
+                    binary_mask_onehot[0] = 1 - binary_mask  # First channel: complement of binary mask
+                    binary_mask_onehot[1] = binary_mask      # Second channel: binary mask
                 else:
                     # Save zeros if label is not 1
-                    binary_mask = np.zeros((512, 512))
-
+                    binary_mask_onehot[1] = np.zeros(( 512, 512))
+                    binary_mask_onehot[0]=np.ones((512,512))
                 # Append binary mask to pseudolabels list
-                pseudolabels.append(binary_mask)
+                pseudolabels.append(binary_mask_onehot)
 
     # Convert lists to numpy arrays
     trainpseudolabels = np.array(trainpseudolabels)
