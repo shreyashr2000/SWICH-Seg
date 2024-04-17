@@ -10,6 +10,7 @@ from gradcam_function import generate_gradcam
 from clustering import perform_kmeans_clustering
 from data_utils import class_lowdata_numpy_dataset
 from data_utils import test_lowdata_numpy_dataset
+from data_utils import seg_lowdata_numpy_dataset
 from torch.utils.data import DataLoader
 from loss_function import dice_loss
 from generate_pseudolabels import get_pseudolabels
@@ -68,14 +69,15 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
     train_pseudolabels,val_pseudolabels = get_pseudolabels(train_loader,val_loader,model,device,target_layer)
-    train_dataset = class_lowdata_numpy_dataset(train_data, train_labels)
-    val_dataset = test_lowdata_numpy_dataset(val_data, val_labels)
-
+    train_dataset = seg_lowdata_numpy_dataset(train_data, train_pseudolabels)
+    val_dataset = test_lowdata_numpy_dataset(val_data, val_pseudolabels)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     # 5. Train UNet model using cluster labels
     unet_model = UNetModel()  # Initialize UNet model
     criterion = dice_loss()  #   loss function
     optimizer = optim.Adam(list(model.parameters()), lr=learning_rate)  #   optimizer
-    best_unet_model = train_model_lowdata(unet_model, train_loader, criterion, optimizer, device, epochs, 'best_unet_model.pth', cluster_labels=cluster_labels)
+    best_unet_model = train_model_lowdata(unet_model, train_loader, criterion, optimizer, device, epochs, 'best_unet_model.pth')
 
 if __name__ == "__main__":
     main()
