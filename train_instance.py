@@ -8,7 +8,6 @@ from data_loader_INSTANCE import get_INSTANCE_data_loader
 from lowdata_class_trainer import train_model_lowdata
 from gradcam_function import generate_gradcam
 from clustering import perform_kmeans_clustering
-from utils import your_loss_function, your_optimizer_function
 from data_utils import class_lowdata_numpy_dataset
 from data_utils import test_lowdata_numpy_dataset
 from torch.utils.data import DataLoader
@@ -62,23 +61,17 @@ def main():
     resnet_fc_model = ResNetFCModel(resnet_model_from_gru)  # Pass ResNet model as argument to ResNet-FC model
     optimizer = optim.SGD(resnet_gru_model.parameters(), lr=learning_rate, momentum=0.9)  #   optimizer
     best_resnet_fc_model = train_model_lowdata(resnet_fc_model, train_loader, criterion, optimizer, device, epochs, 'best_resnet_fc_model.pth')
-    # 4. Generate Grad-CAM
-    # generates Grad-CAM images
+    # 4. Generate pseudolabels-using GradCAM and KMeans clustering
+    model=best_resnet_fc_model 
     model.eval()
-    #target_layer_index = 0  # Index of the desired layer within the Sequential model
-    target_layer = model.module[-4]
-    # Access the Sequential model inside DataParallel and then the target layer
-    #target_layer = model.module[target_layer_index]
-
-    #target_layer = model.layer[0]
+    target_layer = model.module[-4] 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
-    gradcam_images = get_pseudolabels(best_resnet_fc_model, train_loader)
+    train_pseudolabels,val_pseudolabels = get_pseudolabels(train_loader,val_loader,model,device,target_layer)
+    train_dataset = class_lowdata_numpy_dataset(train_data, train_labels)
+    val_dataset = test_lowdata_numpy_dataset(val_data, val_labels)
 
-    # 5. Perform KMeans clustering
-    cluster_labels = perform_kmeans_clustering(gradcam_images)
-
-    # 6. Train UNet model using cluster labels
+    # 5. Train UNet model using cluster labels
     unet_model = UNetModel()  # Initialize UNet model
     criterion = dice_loss()  #   loss function
     optimizer = optim.Adam(list(model.parameters()), lr=learning_rate)  #   optimizer
