@@ -79,6 +79,10 @@ def get_pseudolabels(train_loader, val_loader, model, device, target_layer, thre
                     thresholded_img *= data[i, 1, :, :].cpu().numpy()
 
                     # Call ImageSegmenter function
+                    segmenter = ImageSegmenter(k=4, threshold=140)
+
+                    # Segment the image
+                    binary_image = segmenter.segment_image(thresholded_img)
                     binary_mask = ImageSegmenter(thresholded_img)
 
                     # Perform binary dilation
