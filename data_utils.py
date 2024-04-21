@@ -240,4 +240,53 @@ class class_lowdata_numpy_dataset(Dataset):
             int: Length of the dataset.
         """
         return len(self.data)  # Return the length of the input data
+class RSNA_seg_numpy_dataset(Dataset):  
+    def __init__(self, file_paths, folder_address, transform=None):
+        self.file_paths = file_paths
+        self.folder_address = folder_address
+        self.transform = transform
+
+    def load_target(self, index):
+        # Construct the file path for the target label using the index
+        file_name = f"ID_{index:06d}.nii.gz"
+        target_path = os.path.join(self.folder_address, file_name)
+        
+        # Load target labels from the constructed file path
+        target_image = nib.load(target_path)
+        target_data = target_image.get_fdata()
+        return torch.from_numpy(target_data).float()
+
+    def __getitem__(self, index):
+        dicom_dataset = pydicom.dcmread(self.file_paths[index])
+        data = dicom_dataset.pixel_array  
+
+        if self.transform:
+            data = self.transform(data)
+        
+        data = data.astype(np.float32)
+
+        # Load target labels dynamically
+        #try:
+        y = self.load_target(index)
+        #except FileNotFoundError:
+         #   y = torch.zeros(1)  # Handle the case when target labels are not available
+        
+        x = dicom_dataset.RescaleIntercept
+        
+        if isinstance(dicom_dataset.WindowCenter, pydicom.multival.MultiValue):
+            c = float(dicom_dataset.WindowCenter[0])  # Assuming you want the first value
+        else:
+            c = float(dicom_dataset.WindowCenter)
+        
+        if isinstance(dicom_dataset.WindowWidth, pydicom.multival.MultiValue):
+            w = float(dicom_dataset.WindowWidth[0])  # Assuming you want the first value
+        else:
+            w = float(dicom_dataset.WindowWidth)
+        
+        data = cv2.resize(data, (512, 512))
+        ss=dicom_dataset.RescaleSlope
+        return data, y, x, c, w,ss
+
+    def __len__(self):
+        return len(self.file_paths)
 
