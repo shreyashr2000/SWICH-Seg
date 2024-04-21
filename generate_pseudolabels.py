@@ -38,8 +38,26 @@ def get_pseudolabels(train_loader, val_loader, model, device, target_layer, thre
             # Iterate over data samples in the batch
             for i in range(data.shape[0]):
                 img_tensor = torch.zeros((1, 3, 512, 512))
-                img_tensor[0, :, :, :] = data[i, :, :, :]
-                x = data[i, 1, :, :].detach().cpu().numpy()
+                r = window_ct(data[i,:,:], w_level=40, w_width=80)  # Extract R channel
+                g = window_ct(data[i,:,:], w_level=80, w_width=200) # Extract G channel
+                b = window_ct(data[i,:,:], w_level=600, w_width=2800) # Extract B channel
+
+                # Normalize each channel individually
+                r = r / r.max()
+                g = g / g.max()
+                b = b / b.max()
+                r = (r * 255).clamp(0, 255)
+                g = (g * 255).clamp(0, 255)
+                b = (b * 255).clamp(0, 255)
+
+                # Assign R, G, B channels to respective positions in the new tensor
+                if not torch.isinf(r).any().item():
+                    img_tensor[0, 0, :, :] = r
+                if not torch.isinf(g).any().item():
+                    img_tensor[0, 1, :, :] = g
+                if not torch.isinf(b).any().item():
+                    img_tensor[0, 2, :, :] = b
+               # subdural_window = img_tensor[0, 1, :, :].detach().cpu().numpy()   # Subdural_Window
                 img_tensor = img_tensor.float()
                 img_tensor = img_tensor.to(device)
 
@@ -76,7 +94,7 @@ def get_pseudolabels(train_loader, val_loader, model, device, target_layer, thre
                     thresholded_img[thresholded_img <= threshold_value] = 0
 
                     # Multiply by original subdural_windowed image
-                    thresholded_img *= data[i, 1, :, :].cpu().numpy()
+                    thresholded_img *= img_tensor[0, 1, :, :].cpu().numpy()
 
                     # Call ImageSegmenter function
                     segmenter = ImageSegmenter(k=4, threshold=140)
