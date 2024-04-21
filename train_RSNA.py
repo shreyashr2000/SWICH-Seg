@@ -32,7 +32,7 @@ def main():
     learning_rate = 0.0001
     epochs = 100
     # Load INSTANCE dataset
-    train_loader = get_INSTANCE_data_loader(batch_size)
+    train_data,train_labels = get_INSTANCE_data_loader(batch_size)
     # 1. Train ResNet model
     train_dataset = RSNA_class_numpy_dataset(train_data, train_labels)
     val_dataset = RSNA_class_numpy_dataset(val_data, val_labels)
@@ -67,9 +67,9 @@ def main():
     target_layer = model.module[-4] 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
-    train_pseudolabels,val_pseudolabels = get_pseudolabels(train_loader,val_loader,model,device,target_layer)
-    train_dataset = seg_lowdata_numpy_dataset(train_data, train_pseudolabels)
-    val_dataset = test_lowdata_numpy_dataset(val_data, val_pseudolabels)
+    label_folder = get_pseudolabels_rsna(train_loader,val_loader,model,device,target_layer)
+    train_dataset = seg_lowdata_numpy_dataset(train_data, label_folder)
+    val_dataset = test_lowdata_numpy_dataset(val_data, label_folder)
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     # 5. Train UNet model using cluster labels
