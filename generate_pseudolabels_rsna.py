@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from scipy.ndimage import binary_dilation
 from gradcam import GradCamHook
 from clustering import   ImageSegmenter
+from windowing import window_image
 def get_pseudolabels(train_loader, val_loader, model, device, target_layer, threshold_value=0.7):
     """
     Compute GradCAM heatmaps for the given model and dataset.
@@ -37,9 +38,9 @@ def get_pseudolabels(train_loader, val_loader, model, device, target_layer, thre
             # Iterate over data samples in the batch
             for i in range(data.shape[0]):
                 img_tensor = torch.zeros((1, 3, 512, 512))
-                r = window_ct(data[i,:,:],  window_center=wc[i], window_width=ww[i], intercept=inter[i], slope=slp[i])  # Extract R channel
-                g = window_ct(data[i,:,:], window_center=80, window_width=200, intercept=inter[i], slope=slp[i]) # Extract G channel
-                b = window_ct(data[i,:,:], window_center=600, window_width=2800, intercept=inter[i], slope=slp[i]) # Extract B channel
+                r = window_image(data[i,:,:],  window_center=wc[i], window_width=ww[i], intercept=inter[i], slope=slp[i])  # Extract R channel
+                g = window_image(data[i,:,:], window_center=80, window_width=200, intercept=inter[i], slope=slp[i]) # Extract G channel
+                b = window_image(data[i,:,:], window_center=600, window_width=2800, intercept=inter[i], slope=slp[i]) # Extract B channel
 
                 # Normalize each channel individually
                 r = r / r.max()
