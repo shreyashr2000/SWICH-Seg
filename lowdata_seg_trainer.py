@@ -43,30 +43,23 @@ def seg_train_model_lowdata(model, train_loader, val_loader, criterion, optimize
 
         with torch.no_grad():
             for inputs, targets in tqdm(val_loader, desc=f'Validation Epoch {epoch + 1}/{num_epochs}'):
-                one_d_data = torch.zeros((inputs.shape[0], 3, 512, 512)).to(device)
+                one_d_data = torch.zeros((inputs.shape[0], 1, 512, 512)).to(device)
                 for i in range(inputs.shape[0]):
                     gray_img = inputs[i,:,:]
                     r = window_ct(gray_img, w_level=40, w_width=80)  # Extract R channel
-                    g = window_ct(gray_img, w_level=80, w_width=200) # Extract G channel
-                    b = window_ct(gray_img, w_level=600, w_width=2800) # Extract B channel
+     
 
                     # Normalize each channel individually
                     r = r / r.max()
-                    g = g / g.max()
-                    b = b / b.max()
+   
 
                     # Scale each channel to [0, 255] range
                     r = (r * 255).clamp(0, 255)
-                    g = (g * 255).clamp(0, 255)
-                    b = (b * 255).clamp(0, 255)
-
+ 
                     # Assign R, G, B channels to respective positions in the new tensor
                     if not torch.isinf(r).any().item():
                         one_d_data[i, 0, :, :] = r
-                    if not torch.isinf(g).any().item():
-                        one_d_data[i, 1, :, :] = g
-                    if not torch.isinf(b).any().item():
-                        one_d_data[i, 2, :, :] = b
+    
 
                 inputs, targets = one_d_data.to(device), targets.to(device)
                 outputs = model(inputs)
