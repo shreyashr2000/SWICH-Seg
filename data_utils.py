@@ -57,8 +57,8 @@ class RSNA_class_numpy_dataset(Dataset):
         
         # Resize data to (512, 512)
         data = cv2.resize(data, (512, 512))
-
-        return data, y, x, c, w
+        ss=dicom_dataset.RescaleSlope
+        return data, y, x, c, w,ss
 
     def __len__(self):
         """
