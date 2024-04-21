@@ -4,7 +4,7 @@ import cv2
 import torch.nn.functional as F
 from scipy.ndimage import binary_dilation
 from gradcam import GradCamHook
-
+from clustering import   ImageSegmenter
 def get_pseudolabels(train_loader, val_loader, model, device, target_layer, threshold_value=0.7):
     """
     Compute GradCAM heatmaps for the given model and dataset.
