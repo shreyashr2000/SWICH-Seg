@@ -13,7 +13,7 @@ def train_model_lowdata(model, train_loader, val_loader, criterion, optimizer, d
         for inputs, targets,wc,ww,inter,slp in tqdm(train_loader, desc=f'Training Epoch {epoch + 1}/{num_epochs}'):
             three_d_data = torch.zeros((inputs.shape[0], 3, 512, 512)).to(device)
             for i in range(inputs.shape[0]):
-                data1 = augment1(inputs[i,:,:])
+                data1 = augment2(inputs[i,:,:])
                 if isinstance(data1, np.ndarray):
                     gray_img = torch.from_numpy(data1)
                 else:
