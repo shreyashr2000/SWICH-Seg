@@ -4,7 +4,7 @@ from windowing import window_ct
 def train_model_lowdata(model, train_loader, val_loader, criterion, optimizer, device, num_epochs, save_path):
     best_val_loss = float('inf')
     best_model = None
-
+    best_val_accuracy = 0.0
     for epoch in range(num_epochs):
         # Training phase
         model.train()
@@ -81,21 +81,23 @@ def train_model_lowdata(model, train_loader, val_loader, criterion, optimizer, d
                         threeddata[i, 1, :, :] = g
                     if not torch.isinf(b).any().item():
                         threeddata[i, 2, :, :] = b
-
                 inputs, targets = threeddata.to(device), targets.to(device)
                 outputs = model(inputs)
                 loss = criterion(outputs, targets)
                 running_val_loss += loss.item() * inputs.size(0)
-
-        val_loss = running_val_loss / len(val_loader.dataset)
-
-        # Save the best model based on validation loss
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
+                _, predicted = torch.max(outputs, 1)
+                total_predictions += targets.size(0)
+                correct_predictions += (predicted == targets).sum().item()
+        val_accuracy = correct_predictions / total_predictions
+        # Save the best model based on accuracy
+        if val_accuracy > best_val_accuracy:
+            best_val_accuracy = val_accuracy
             best_model = model.state_dict()
             torch.save(best_model, save_path)
 
-        print(f'Epoch {epoch + 1}/{num_epochs}, Training Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}')
+        print(f'Epoch {epoch + 1}/{num_epochs}, Training Loss: {train_loss:.4f}, Validation Accuracy: {val_accuracy:.4f}')
 
     print('Training complete!')
     return best_model
+
+
