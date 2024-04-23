@@ -62,33 +62,34 @@ def load_train_data(data, mask):
 def load_test_data(data, mask):
     img_data = []  # List to store loaded CT scan data
     mask_data = []  # List to store loaded masks
-    ins_data = np.zeros((len(data) * 32, 512, 512))  # Initialize array for CT scan data
-    ins_mask = np.zeros((len(data) * 32, 2, 512, 512))  # Initialize array for masks
-    ins_label = np.zeros(len(data) * 32)  # Initialize array for binary labels
-    
+
+    total_count=0
     # Load CT scan data and masks
     for i in range(len(data)):
         nifti_data = nib.load(data[i])
         img_data.append(nifti_data.get_fdata())
-        
+        total_count=total_count+img_data.shape[2]
         nifti_mask = nib.load(mask[i])
         z=nifti_mask.get_fdata()
         z[z>0]=1
         mask_data.append(z)
+    count=0
+    ins_data = np.zeros((total_count,512,512))  # Initialize array for CT scan data
+    ins_mask = np.zeros((total_count, 2, 512, 512))  # Initialize array for masks
+    ins_label = np.zeros(total_count)  # Initialize array for binary labels
     # Process CT scan data and masks
     for i in range(len(data)):
-                ins_data[i * 32 + j, :, :] = np.rot90(img_data[i][:, :, :])
+        for j in range(data[i].shape[2]):
+                ins_data[count, :, :] = np.rot90(img_data[i][:, :, j])
                 mask = np.rot90(mask_data[i][:, :, j])
-                ins_mask[i * 32 + j, 0, :, :] = 1 - mask  # Background
-                ins_mask[i * 32 + j, 1, :, :] = mask  # Target
-            else:
-                ins_data[i * 32 + j, :, :] = np.rot90(img_data[i][:, :, j-1])
-                mask = np.rot90(mask_data[i][:, :, j-1])
-                ins_mask[i * 32 + j, 0, :, :] = 1 - mask  # Background
-                ins_mask[i * 32 + j, 1, :, :] = mask  # Target
+                ins_mask[count, 0, :, :] = 1 - mask  # Background
+                ins_mask[count, 1, :, :] = mask  # Target
+
+
                 
             # Set binary label based on the presence of target in the mask
-            if ins_mask[i * 32 + j, 1, :, :].max() > 0:
-                ins_label[i * 32 + j] = 1
+                if ins_mask[count].max() > 0:
+                    ins_label[count] = 1
+                count=count+1
                 
     return ins_data, ins_mask, ins_label
