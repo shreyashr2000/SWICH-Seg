@@ -1,3 +1,6 @@
+import torch
+import numpy as np
+from windowing import window_ct
 def seg_train_model_lowdata(model, test_data_loader, device, num_epochs):
  model.eval()
  with torch.no_grad():
