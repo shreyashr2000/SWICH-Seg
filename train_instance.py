@@ -4,7 +4,7 @@ from resnet_gru_model import GRUClassifier
 from resnet_gru_model import remove_last_fc_layer
 from resnet_fc_model import ResNetFCModel
 from UNet2D import UNet
-from data_loader_INSTANCE import get_INSTANCE_data_loader
+from loader import data_load
 from lowdata_class_trainer import train_model_lowdata
 from lowdata_seg_trainer import seg_train_model_lowdata
 from gradcam_function import generate_gradcam
@@ -32,7 +32,7 @@ def main():
     learning_rate = 0.0001
     epochs = 100
     # Load INSTANCE dataset
-    train_loader = get_INSTANCE_data_loader(batch_size)
+    train_data,train_labels,val_data,val_labels = data_load('','',large=False,train=True)
     # 1. Train ResNet model
     train_dataset = class_lowdata_numpy_dataset(train_data, train_labels)
     val_dataset = test_lowdata_numpy_dataset(val_data, val_labels)
