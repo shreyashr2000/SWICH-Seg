@@ -1,9 +1,20 @@
 import numpy as np
-
 class MetricsCalculator:
     def __init__(self, target, output):
         self.target = target
         self.output = output
+
+    def calculate_all_metrics(self):
+        # Calculate Dice coefficient
+        dice = self.dice_coef()
+
+        # Calculate True Positive Rate (TPR)
+        tpr = self.calculate_tpr()
+
+        # Calculate Intersection over Union (IoU)
+        iou = self.iou_coef()
+
+        return dice, tpr, iou
 
     def dice_coef(self):
         # Flatten the tensors
