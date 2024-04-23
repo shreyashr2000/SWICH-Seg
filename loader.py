@@ -1,6 +1,7 @@
 import random
 from data_preprocessing import load_test_data
-def data_split(img,mask,large=True,train=False):
+from data_preprocessing import load_train_data
+def data_load(img,mask,large=True,train=False):
   if train=True:
     data,mask,label=load_test_data(img,mask)
   else:
