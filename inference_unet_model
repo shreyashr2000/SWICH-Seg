@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from windowing import window_ct
-def seg_train_model_lowdata(model, test_data_loader, device, num_epochs):
+def unet_test(model, test_data_loader, device):
  model.eval()
  with torch.no_grad():
      pseudounetlabel=[]
