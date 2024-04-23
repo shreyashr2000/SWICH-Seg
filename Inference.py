@@ -1,4 +1,35 @@
+import torch
+from resnet_gru_model import GRUClassifier
+from resnet_gru_model import remove_last_fc_layer
+from resnet_fc_model import ResNetFCModel
+from UNet2D import UNet
+from loader import data_load
+from lowdata_class_trainer import train_model_lowdata
+from lowdata_seg_trainer import seg_train_model_lowdata
+from gradcam_function import generate_gradcam
+from clustering import perform_kmeans_clustering
+from data_utils import class_lowdata_numpy_dataset
+from data_utils import test_lowdata_numpy_dataset
+from data_utils import seg_lowdata_numpy_dataset
+from torch.utils.data import DataLoader
+from loss_function import dice_loss
+from generate_pseudolabels import get_pseudolabels
+import numpy as np
+import matplotlib
+import matplotlib.pyplot as plt
+import torch
+import torch.nn as nn 
+import seaborn as sns
+import glob
+import cv2
+import torch.optim as optim
+from inference_unet_model import unet_test
+from metrics import MetricsCalculator
 def main():
+    dice=0
+    tpr=0
+    iou=0
+    count=0
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     #  hyperparameters
     batch_size = 32
@@ -46,5 +77,25 @@ def main():
     #print('weights loaded model = ', len(pretrained_dict), '/', len(model_dict))
     model.load_state_dict(torch.load(LOAD_PATH))
     model.eval()
+    pseudo_unet_mask=unet_test(model,test_dataloader,device)
+    final_output=np.zeros((pseudolabels.shape[0],512,512))
+    metrics_calculator = MetricsCalculator(target, output)
+
+
+    for i in range(len(pseudolabels)):
+        final_output[i,:,:]=np.logical_or(pseudolabels[i,:,:],pseudo_unet_mask[i,:,:])
+        if test_mask[i,1,:,:].max()>0:
+            dice_temp, tpr_temp, iou_temp = metrics_calculator.calculate_all_metrics()
+            dice += dice_temp
+            tpr += tpr_temp
+            iou += iou_temp
+            count=count+1
+    final_dice=dice/count
+    final_tpr=tpr/count   
+    final_iou=iou/count
+    print("Dice Coefficient:", final_dice)
+    print("True Positive Rate (TPR):", final_tpr)
+    print("Intersection over Union (IoU):", final_iou)
+        
   
     
