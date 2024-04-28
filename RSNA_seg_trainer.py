@@ -1,6 +1,6 @@
 from augmentation import augment1
 from augmentation import augment2
-from windowing import window_ct
+from windowing import window_image
 def seg_train_model_lowdata(model, train_loader, val_loader, criterion, optimizer, device, num_epochs, save_path):
     best_val_loss = float('inf')
     best_model = None
