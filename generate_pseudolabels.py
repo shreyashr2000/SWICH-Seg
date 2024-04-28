@@ -27,7 +27,8 @@ def get_pseudolabels(train_loader, val_loader, model, device, target_layer, thre
     # Initialize lists to store binary masks for train and validation data
     trainpseudolabels = []
     valpseudolabels = []
-
+    gradcam_hook = GradCamHook(target_layer)
+    gradcam_hook.register()
     # Iterate over the data loaders (train and validation)
     for loader, pseudolabels in [(train_loader, trainpseudolabels), (val_loader, valpseudolabels)]:
         # Iterate over batches
@@ -64,16 +65,14 @@ def get_pseudolabels(train_loader, val_loader, model, device, target_layer, thre
                 prediction = model(img_tensor)
                 predd = torch.sigmoid(prediction)
                 predd = torch.round(predd)
-
                 # Compute GradCAM only if label is 1
                 if labels[i] == 1:
                     # Compute GradCAM
-                    activations = GradCamHook.activations
+                    activations = gradcam_hook.activations
                     prediction.backward()
-                    gradients = GradCamHook.gradients
-                    weights = gradients.mean(dim=[2, 3], keepdim=True)
+                    gradients = gradcam_hook.gradients
+                    weights = gradients.mean(dim=[2,3], keepdim=True)
                     gradcam = (weights * activations).sum(dim=1, keepdim=True)
-
                     # Apply ReLU activation function
                     gradcam = F.relu(gradcam)
 
