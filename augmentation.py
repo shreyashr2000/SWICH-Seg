@@ -5,16 +5,6 @@ from scipy.ndimage import rotate
 import torch
 from torchvision import transforms
 from PIL import Image
-#=========================================================================================
-# Truenet augmentations function
-# Vaanathi Sundaresan
-# 11-03-2021, Oxford
-#=========================================================================================
-
-
-##########################################################################################
-# Define transformations with distance maps
-##########################################################################################
 
 def translate1(image, label):
     """
