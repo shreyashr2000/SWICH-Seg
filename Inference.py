@@ -38,7 +38,7 @@ def main():
     epochs = 100
     # Load INSTANCE dataset
     test_data,test_mask = data_load('','',large=False,train=False)
-    test_dataset = test_lowdata_numpy_dataset(test_data, test_labels)
+    test_dataset = test_lowdata_numpy_dataset(test_data, test_mask)
     # Create data loaders
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
     resnet_gru_model = GRUClassifier(best_resnet_model,hidden_dim, output_dim)
