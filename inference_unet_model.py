@@ -1,13 +1,13 @@
 import torch
 import numpy as np
 from windowing import window_ct
-def unet_test(model, test_data_loader, device):
+import torch.nn.functional as F
+def unet_test(model, test_loader, device):
  model.eval()
  with torch.no_grad():
      pseudounetlabel=[]
 
-
-     for inputs, targets in tqdm(test_loader, desc=f'Validation Epoch {epoch + 1}/{num_epochs}'):
+     for inputs, targets in test_loader:
                 one_d_data = torch.zeros((inputs.shape[0], 1, 512, 512)).to(device)
                 for i in range(inputs.shape[0]):
                     gray_img = inputs[i,:,:]
@@ -29,13 +29,6 @@ def unet_test(model, test_data_loader, device):
                 inputs, targets = one_d_data.to(device), targets.to(device)
                 outputs = model(inputs)
                 pred_seg = F.softmax(outputs, dim=1)
-                pred_seg=pred_seg.cpu()
-                pred_seg=pred_seg.numpy()
-                label=label.cpu()
-                label=label.numpy()
-                data=data.cpu()
-                data=data.numpy()
-
                 for i in range(inputs.shape[0]):    
                   threshold_value = 0.5
                   thresholded_img = np.array(pred_seg[i,1,:,:])
@@ -43,4 +36,4 @@ def unet_test(model, test_data_loader, device):
                   thresholded_img[thresholded_img < threshold_value] = 0
                   pseudounetlabel.append(thresholded_img)
      pseudo_unet_label=np.array(pseudounetlabel)
-     return pseudo_unet_labels
+     return pseudo_unet_label
