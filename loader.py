@@ -2,7 +2,7 @@ import random
 from data_preprocessing import load_test_data
 from data_preprocessing import load_train_data
 def data_load(img,mask,large=True,train=False):
-  if train=True:
+  if train==True:
     data,mask,label=load_test_data(img,mask)
   else:
 # Shuffle the list of files and masks together
@@ -45,8 +45,8 @@ def data_load(img,mask,large=True,train=False):
     train_data,train_mask,train_label=load_train_data(train_files,train_masks)
     val_data,val_mask,val_label=load_train_data(val_files,val_masks)
     test_data,test_mask,test_label=load_train_data(test_files,test_masks)
-    if train=True:
+    if train==True:
       return train_data,train_label,val_data,val_label
-    if train=False:
+    if train==False:
       return test_data,test_mask
     
