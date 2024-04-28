@@ -9,7 +9,8 @@ def train_model_lowdata(model, train_loader, val_loader, criterion, optimizer, d
         # Training phase
         model.train()
         running_train_loss = 0.0
-
+        total_predictions = 0
+        correct_predictions = 0 
         for inputs, targets,wc,ww,inter,slp in tqdm(train_loader, desc=f'Training Epoch {epoch + 1}/{num_epochs}'):
             three_d_data = torch.zeros((inputs.shape[0], 3, 512, 512)).to(device)
             for i in range(inputs.shape[0]):
