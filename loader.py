@@ -12,7 +12,7 @@ def data_load(img,mask,large=True,train=False):
 
 # Calculate the size of each fold
     fold_size = len(files) // 5
-
+    half_size = fold_size // 2
 # Create an empty list to store the folds
     file_folds = []
     mask_folds = []
