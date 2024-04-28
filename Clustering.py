@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 from torch.autograd import Variable
 from sklearn.exceptions import ConvergenceWarning
+import cv2
 np.random.seed(42)
 
 
@@ -24,10 +25,7 @@ class ImageSegmenter:
         
         # Reshape the labels to match the shape of the original image
         labels = kmeans.labels_.reshape(img.shape)
-        
-#         plt.imshow(labels)
-#         plt.colorbar()
-#         plt.show()
+
         # Calculate the average intensity of each cluster
         cluster_intensities = np.zeros(self.k)
         for i in range(self.k):
@@ -37,25 +35,14 @@ class ImageSegmenter:
              cluster_intensities[i] = self.avg_pixel_value(cluster_pixels)
 
         # Select clusters with intensity less than the threshold
-  #      valid_clusters_mask = cluster_intensities < self.threshold
-#         for i in range(len(cluster_intensities)):
-#          print(cluster_intensities[i])
-        # Find the index of the cluster with the highest intensity among the valid clusters
         highest_intensity_cluster_index = np.argmax(cluster_intensities)
         if cluster_intensities.max()==0:
             blank_img=np.zeros((512,512))
             return blank_img
-     #   print(highest_intensity_cluster_index)
         # Create a binary image containing only the pixels of the selected cluster
         binary_image = np.where(labels == highest_intensity_cluster_index, 1, 0).astype(np.uint8)
-        
+        # Ensure the correct data type (uint8) for dilation
         kernel = np.ones((4, 4), np.uint8)
-
-# Ensure the correct data type (uint8) for dilation
-       
-#             plt.imshow(y_testt[32*batch_idx+i,1,:,:])
-#             plt.show()
-# Perform dilation
         dilated_image = cv2.dilate(binary_image, kernel, iterations=1)
         return dilated_image
     def avg_pixel_value(self,x):
