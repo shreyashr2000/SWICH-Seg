@@ -43,7 +43,7 @@ def load_train_data(data, mask):
     # Process CT scan data and masks
     for i in range(len(data)):
         for j in range(32):
-            if j < data[i].shape[2]:
+            if j < img_data[i].shape[2]:
                 ins_data[i * 32 + j, :, :] = np.rot90(img_data[i][:, :, j])
                 mask = np.rot90(mask_data[i][:, :, j])
                 ins_mask[i * 32 + j, 0, :, :] = 1 - mask  # Background
@@ -68,7 +68,7 @@ def load_test_data(data, mask):
     for i in range(len(data)):
         nifti_data = nib.load(data[i])
         img_data.append(nifti_data.get_fdata())
-        total_count=total_count+img_data.shape[2]
+        total_count=total_count+img_data[i].shape[2]
         nifti_mask = nib.load(mask[i])
         z=nifti_mask.get_fdata()
         z[z>0]=1
@@ -79,7 +79,7 @@ def load_test_data(data, mask):
     ins_label = np.zeros(total_count)  # Initialize array for binary labels
     # Process CT scan data and masks
     for i in range(len(data)):
-        for j in range(data[i].shape[2]):
+        for j in range(img_data[i].shape[2]):
                 ins_data[count, :, :] = np.rot90(img_data[i][:, :, j])
                 mask = np.rot90(mask_data[i][:, :, j])
                 ins_mask[count, 0, :, :] = 1 - mask  # Background
@@ -88,8 +88,9 @@ def load_test_data(data, mask):
 
                 
             # Set binary label based on the presence of target in the mask
-                if ins_mask[count].max() > 0:
+                if ins_mask[count,1,:,:].max() > 0:
                     ins_label[count] = 1
                 count=count+1
                 
     return ins_data, ins_mask, ins_label
+    
