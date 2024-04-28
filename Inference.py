@@ -25,6 +25,7 @@ import cv2
 import torch.optim as optim
 from inference_unet_model import unet_test
 from metrics import MetricsCalculator
+from loader import data_load
 def main():
     dice=0
     tpr=0
