@@ -79,7 +79,7 @@ def main():
     model.eval()
     pseudo_unet_mask=unet_test(model,test_dataloader,device)
     final_output=np.zeros((pseudolabels.shape[0],512,512))
-    metrics_calculator = MetricsCalculator(target, output)
+    metrics_calculator = MetricsCalculator()
 
 
     for i in range(len(pseudolabels)):
