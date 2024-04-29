@@ -54,7 +54,8 @@ def train_model_lowdata(model, train_loader, val_loader, criterion, optimizer, d
         # Validation phase
         model.eval()
         running_val_loss = 0.0
-
+        total_predictions = 0
+        correct_predictions = 0
         with torch.no_grad():
             for inputs, targets in tqdm(val_loader, desc=f'Validation Epoch {epoch + 1}/{num_epochs}'):
                 threeddata = torch.zeros((inputs.shape[0], 3, 512, 512)).to(device)
