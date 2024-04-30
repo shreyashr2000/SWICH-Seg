@@ -37,7 +37,13 @@ def main():
     hidden_dim = 256  # Number of hidden units in the LSTM layer
     output_dim = 1  # Number of output classes (binary classification)
     # Load INSTANCE dataset
-    test_data,test_mask = data_load('','',large=False,train=False)
+    with zipfile.ZipFile("data.zip","r") as zip_ref:
+     zip_ref.extractall("./ins_extracted_folder")
+    files=glob.glob("ins_extracted_folder/**/*.nii.gz")
+    with zipfile.ZipFile("label.zip","r") as zip_ref:
+     zip_ref.extractall("./label_extracted_folder")
+    labels=glob.glob("label_extracted_folder/**/*.nii.gz")
+    test_data,test_mask = data_load('files','lables',large=False,train=False)
     test_dataset = test_lowdata_numpy_dataset(test_data, test_mask)
     # Create data loaders
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
