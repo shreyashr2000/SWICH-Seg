@@ -1,8 +1,8 @@
 import random
-from data_preprocessing import load_test_data
-from data_preprocessing import load_train_data
-def data_load(img,mask,large=True,train=False):
-  if train==True:
+from data_preprocessing_training import load_test_data
+from data_preprocessing_training import load_train_data
+def data_load(img,mask,large=True,train=False):  # img-containing images address, label- containing labels address
+  if large==True:
     data,mask,label=load_test_data(img,mask)
   else:
 # Shuffle the list of files and masks together
