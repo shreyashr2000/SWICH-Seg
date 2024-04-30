@@ -18,21 +18,29 @@ from generate_pseudolabels import get_pseudolabels
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-import torch
 import torch.nn as nn 
 import seaborn as sns
 import glob
+import zipfile
 import cv2
 import torch.optim as optim
 def main():
     # Set device (GPU if available, else CPU)
+    cuda = torch.cuda.is_available()
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     #  hyperparameters
     batch_size = 32
     learning_rate = 0.0001
     epochs = 100
     # Load INSTANCE dataset
-    train_data,train_labels,val_data,val_labels = data_load('','',large=False,train=True)
+    with zipfile.ZipFile("data.zip","r") as zip_ref:
+     zip_ref.extractall("./ins_extracted_folder")
+    files=glob.glob("ins_extracted_folder/**/*.nii.gz")
+    with zipfile.ZipFile("label.zip","r") as zip_ref:
+     zip_ref.extractall("./label_extracted_folder")
+    labels=glob.glob("label_extracted_folder/**/*.nii.gz")
+    datafiles=
+    train_data,train_labels,val_data,val_labels = data_load('files','labels',large=False,train=True)
     # 1. Train ResNet model
     train_dataset = class_lowdata_numpy_dataset(train_data, train_labels)
     val_dataset = test_lowdata_numpy_dataset(val_data, val_labels)
@@ -42,7 +50,7 @@ def main():
     resnet_model = ResNet101()  # Initialize ResNet model
     criterion = nn.BCELoss()  #  loss function
     optimizer = optim.SGD(resnet_model.parameters(), lr=learning_rate, momentum=0.9) #optimizer
-    best_resnet_model = train_model_lowdata(resnet_model, train_loader, criterion, optimizer, device, epochs, 'best_resnet_model.pth')
+    best_resnet_model = train_model_lowdata(resnet_model, train_loader,val_loader criterion, optimizer, device, epochs, 'best_resnet_ins_model.pth')
     hidden_dim = 256  # Number of hidden units in the LSTM layer
     output_dim = 1  # Number of output classes (binary classification)
 
@@ -54,18 +62,17 @@ def main():
     optimizer = optim.SGD(resnet_gru_model.parameters(), lr=learning_rate, momentum=0.9) #   optimizer
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)  # Dont shuffle the train_loader, to give whole 3D scan as input to resnet-gru model.
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-    best_resnet_gru_model = train_model_lowdata(resnet_gru_model, train_loader, criterion, optimizer, device, epochs, 'best_resnet_gru_model.pth')
+    best_resnet_gru_model = train_model_lowdata(resnet_gru_model, train_loader, criterion, optimizer, device, epochs, 'best_resnet_gru_ins_model.pth')
     # Extract ResNet from ResNet-GRU model
     resnet_model_from_gru = best_resnet_gru_model.resnet()  
     # 3. Train ResNet-FC model
     resnet_fc_model = ResNetFCModel(resnet_model_from_gru)  # Pass ResNet model as argument to ResNet-FC model
     optimizer = optim.SGD(resnet_gru_model.parameters(), lr=learning_rate, momentum=0.9)  #   optimizer
-    best_resnet_fc_model = train_model_lowdata(resnet_fc_model, train_loader, criterion, optimizer, device, epochs, 'best_resnet_fc_model.pth')
+    best_resnet_fc_model = train_model_lowdata(resnet_fc_model, train_loader, criterion, optimizer, device, epochs, 'best_resnet_fc_ins_model.pth')
     # 4. Generate pseudolabels-using GradCAM and KMeans clustering
     model=best_resnet_fc_model 
     model.eval()
     target_layer = model.module[-4] 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
     train_pseudolabels,val_pseudolabels = get_pseudolabels(train_loader,val_loader,model,device,target_layer)
     train_dataset = seg_lowdata_numpy_dataset(train_data, train_pseudolabels)
@@ -78,7 +85,7 @@ def main():
         model.cuda()
     criterion = dice_loss()  #   loss function
     optimizer = optim.Adam(list(model.parameters()), lr=learning_rate)  #   optimizer
-    best_unet_model = seg_train_model_lowdata(model, train_loader, criterion, optimizer, device, epochs, 'best_unet_model.pth')
+    best_unet_model = seg_train_model_lowdata(model, train_loader, criterion, optimizer, device, epochs, 'best_unet_ins_model.pth')
 
 if __name__ == "__main__":
     main()
