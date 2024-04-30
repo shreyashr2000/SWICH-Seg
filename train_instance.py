@@ -39,7 +39,6 @@ def main():
     with zipfile.ZipFile("label.zip","r") as zip_ref:
      zip_ref.extractall("./label_extracted_folder")
     labels=glob.glob("label_extracted_folder/**/*.nii.gz")
-    datafiles=
     train_data,train_labels,val_data,val_labels = data_load('files','labels',large=False,train=True)
     # 1. Train ResNet model
     train_dataset = class_lowdata_numpy_dataset(train_data, train_labels)
