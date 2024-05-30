@@ -18,7 +18,7 @@ class GRUClassifier(nn.Module):
         # Pass the input through the ResNet
         features = self.resnet(x)
         # Resize the features to have batch size as the first dimension
-        features = features.view(batch_size, 1, -1)
+        features = features.view(1, 32, -1) #32 batch size
         # Pass the features through the GRU layer
         GRU_out, _ = self.lstm(features)
         # Pass the GRU output through the final classification layers
