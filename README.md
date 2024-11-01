@@ -1,4 +1,4 @@
-# Robust weakly supervised Intracranial-HemorrhageSegmentation in low-data Non-Contrast Computed Tomography datasets
+# SWICH-Seg: Label Efficient Sequential model-based Weakly supervised ICH segmentation in NCCT Images 
 Architecture diagram
 ![training_img](https://github.com/shreyashr2000/Shreyas-weakly-supervised-segmentation/assets/114232340/13cb1303-8fb6-4167-963d-85240b43683b)
 Training and Inference Phase
